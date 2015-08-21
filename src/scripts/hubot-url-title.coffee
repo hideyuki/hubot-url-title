@@ -2,9 +2,9 @@
 #   Returns the title when a link is posted
 #
 # Dependencies:
-#   "jsdom": "0.2.15"
-#   "underscore": "1.3.3"
-#   "request": "2.30.0"
+#   "cheerio": "^0.19.0",
+#   "underscore": "~1.3.3"
+#   "request": "~2.30.0"
 #
 # Configuration:
 #   HUBOT_URL_TITLE_IGNORE_URLS - RegEx used to exclude Urls
@@ -16,7 +16,7 @@
 # Author:
 #   ajacksified, dentarg
 
-jsdom      = require 'jsdom'
+cheerio    = require 'cheerio'
 _          = require 'underscore'
 request    = require 'request'
 jschardet  = require 'jschardet'
@@ -51,13 +51,10 @@ module.exports = (robot) ->
             detect = jschardet.detect body
             charset = detect.encoding
             ic = new iconv.Iconv(charset, 'UTF-8//TRANSLIT//IGNORE')
-            convertBody = ic.convert(body).toString()
 
-            jsdom.env(
-              convertBody
-              done: (errors, window) ->
-                unless errors
-                  title = window.document.title.trim()
-                  msg.send "#{title}"
-            )
+            document = cheerio.load(body)
+            title = document('title').text().trim()
+            msg.send "#{title}"
+            convertBody = ic.convert(body).toString()
       )
+
