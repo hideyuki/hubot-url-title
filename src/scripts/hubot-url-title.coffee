@@ -51,8 +51,9 @@ module.exports = (robot) ->
             detect = jschardet.detect body
             charset = detect.encoding
             ic = new iconv.Iconv(charset, 'UTF-8//TRANSLIT//IGNORE')
+            convertBody = ic.convert(body).toString()
 
-            document = cheerio.load(body)
+            document = cheerio.load(convertBody)
             title = document('title').text().trim()
             msg.send "#{title}"
             convertBody = ic.convert(body).toString()
